@@ -21,3 +21,13 @@
 /yarn-error.log
 
 .byebug_history
+
+# Ignore terraform and packer stuff
+.terraform
+.terraform.tfstate.lock.info
+terraform.tfstate
+terraform.tfstate.backup*
+*.retry
+roles/*
+aws-credentials.txt
+build/
