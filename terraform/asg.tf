@@ -16,7 +16,7 @@ resource "aws_elb" "webapp-elb" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 5
-    target              = "TCP:80"
+    target              = "HTTP:80/"
     interval            = 10
   }
 }
@@ -122,7 +122,7 @@ resource "aws_autoscaling_group" "webapp-asg" {
   name                 = "webapp-asg - ${aws_launch_configuration.webapp-lc.name}"
   max_size             = "2"
   min_size             = "1"
-  health_check_type = "EC2"
+  health_check_type = "ELB"
   health_check_grace_period = 150
   # Minimum of healthy instances before destroy old ASG
   wait_for_elb_capacity = "1"
