@@ -1,0 +1,47 @@
+{
+	"variables": {
+		"aws_access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
+		"aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
+		"aws_region": "us-east-1",
+		"aws_ami_id": "ami-0ac019f4fcb7cb7e6",
+		"aws_ec2_instance_type": "t2.micro"
+	},
+	"builders": [{
+			"type": "amazon-ebs",
+			"access_key": "{{user `aws_access_key`}}",
+			"secret_key": "{{user `aws_secret_key`}}",
+			"region": "{{user `aws_region`}}",
+			"source_ami": "{{user `aws_ami_id`}}",
+			"instance_type": "{{user `aws_ec2_instance_type`}}",
+			"ssh_username": "ubuntu",
+			"ami_name": "webapp-{{isotime | clean_ami_name}}",
+			"ami_description": "EC2 AMI Ubuntu 18.04LTS",
+			"tags": {
+				"role": "app_server"
+			},
+			"run_tags": {
+				"role": "production_app"
+			}
+	}],
+	"provisioners": [
+		{
+			"type": "shell",
+			"script": "./packer/scripts/00-ansible.sh"
+		},
+		{
+			"type": "ansible",
+			"playbook_file": "./packer/ansible/playbook.yml",
+			"ansible_env_vars": [ "ANSIBLE_HOST_KEY_CHECKING=False", "ANSIBLE_SSH_ARGS='-o ForwardAgent=yes -o ControlMaster=auto -o ControlPersist=60s'", "ANSIBLE_NOCOLOR=True" ]
+		},
+		{
+                        "type": "shell",
+                        "script": "./packer/scripts/01-deploy-app.sh"
+                }
+	],
+	"post-processors": [
+    	{
+		"type": "manifest",
+      		"output": "/tmp/packer-build-manifest.json",
+      		"strip_path": false
+    	}]
+}

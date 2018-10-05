@@ -28,6 +28,6 @@
 terraform.tfstate
 terraform.tfstate.backup*
 *.retry
-roles/*
+packer/ansible/roles/*
 aws-credentials.txt
 build/

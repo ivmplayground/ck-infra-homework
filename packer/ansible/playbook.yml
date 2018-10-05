@@ -1,0 +1,90 @@
+---
+- hosts: all
+  gather_facts: true
+  become: yes
+  become_method: sudo
+  remote_user: ubuntu
+  vars:
+    dist: bionic
+    nginx_server_name: infra-homework.ck
+    nginx: extras
+    ruby_install_from_source: False
+    passenger_app_env: production
+    passenger_app_root: /var/www/ck-infra-homework/public
+    passenger_app_vars:
+    - name: RAILS_ENV
+      value: production
+    - name: AWS_REGION
+      value: us-east-1
+    - name: SECRET_KEY_BASE_KMS
+      value: AQICAHjParvmVSu/IoVV1tRYKT/s2oK39kku8DZPPV3JnbosBAFtPc6Zw9fiRYbgyRtdNhMjAAAA5DCB4QYJKoZIhvcNAQcGoIHTMIHQAgEAMIHKBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDMYFKc2taSVVrJ7iZgIBEICBnEXXc3XVFf6gIdFk+30+2ijuwr9nygF6TDjMEbsbvvJTG71+iIhJ9kqozHleEGmHw4Hpa5Tnb8Tp+TCFNrpXmNIdJBgygBKxkwBvjsx6pPRnNEEAEcbcvZjq2XrHGyOhr2aWe36IbTCzqQuVXIgBWXyQ0hQZL7bru73BVrW+j3oEH4AbsnhrIF9XmV4xCAvg7gZvPAXDEJpcjXk58g==
+    - name: APP_DB_PASSWORD_KMS
+      value: AQICAHjParvmVSu/IoVV1tRYKT/s2oK39kku8DZPPV3JnbosBAGK7rAZ2P1rQyRIv4Wdd69JAAAAaTBnBgkqhkiG9w0BBwagWjBYAgEAMFMGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMb37a9zhfP6LqlLx9AgEQgCZVkUqjBs78EsumfOn5UpqtxC6m6G+aTJsLXJwwoUXV5pxyAFR1tQ==
+    - name: APP_DB_USER
+      value: appuser
+    - name: APP_DB_NAME
+      value: ck_infra_homework
+    - name: APP_DB_HOST
+      value: webapp-db.cerl368lvogd.us-east-1.rds.amazonaws.com
+  roles:
+    - { role: geerlingguy.ruby }
+    - { role: zaiste.passenger }
+  tasks:
+  - name: Ensure apt cache is updated.
+    apt: update_cache=yes cache_valid_time=3600
+
+  - name: Install pkg dependencies
+    apt: name={{item}} state=latest
+    with_items:
+      - build-essential
+      - dirmngr
+      - zlib1g-dev
+      - libssl-dev
+      - libpcre3-dev 
+      - libcurl4-openssl-dev
+      - libmysqlclient-dev
+      - libsqlite3-dev
+      - python-pip
+      - git-core 
+      - curl
+      - libreadline-dev 
+      - libyaml-dev 
+      - libsqlite3-dev 
+      - sqlite3 
+      - libxml2-dev 
+      - libxslt1-dev 
+      - software-properties-common 
+      - libffi-dev 
+      - nodejs 
+      - yarn
+
+  - name: Install AWS CLI
+    pip: name=awscli state=latest
+
+  - name: App root directory
+    file:
+      path: /var/www/ck-infra-homework
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: 0775  
+
+  - name: Upload and extract code to remote host
+    unarchive: 
+      src: ../../build/ck-infra-homework.zip
+      dest: /var/www/ck-infra-homework
+      owner: www-data
+      group: www-data
+      mode: 0755
+
+  - name: Copy SSH key for ivmp user
+    authorized_key:
+      user: ubuntu
+      state: present
+      key: "{{ lookup('file', '../../ssh_keys/ivmp.pub') }}"
+
+  - name: Copy SSH key for management access
+    authorized_key:
+      user: ubuntu
+      state: present
+      key: "{{ lookup('file', '../../ssh_keys/admin-key.pub') }}"
