@@ -1,5 +1,6 @@
 export PACKER_LOG=1
 export TF_PATH=./terraform
+export AMI=ami-0ce4d2feb5b9cb287
 
 .PHONY: init requirements build ami plan deploy
 
