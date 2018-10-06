@@ -90,6 +90,9 @@ I've found there's a lot of stuff I would like to include in the homework were m
 * Use ALB instead of a classic ELB. I used ELB basically because I found it's fastest to deploy it and save more time, but for sure I would prefer to use an ALB and take profit of the feature it has.
 
 [1] https://galaxy.ansible.com/geerlingguy/ruby/
+
 [2] https://galaxy.ansible.com/zaiste/passenger/
+
 [3] https://rubygems.org/gems/kms-env
+
 [4] https://docs.aws.amazon.com/cli/latest/reference/kms/encrypt.html
