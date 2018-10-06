@@ -71,11 +71,11 @@ Also the database has been seed manually, no provision script has been provided 
 
 Application is directly saved inside the AMI, I find this is the fastest way to deploy it. Using Makefile directive "ami", generates a zip file with all the application code which ansible takes it and uploads to the EC2 instance used to generate the new AMI. One time the code is unzipped in the filesystem, packer launches a bash script to deploy the app (compiles the assests and runs bundle install).
 
-The secrets for the application are managed with AWS KMS, using the Ruby gem [3]. I find it's the fastest and the safest way to manage the secrets. This ruby gem it's pretty simple, basically you need to define the env variables with the suffix "_KMS" and then uses KMS to decrypt the string defined and then set a new variable with the string decrypted without the suffix. This env variables has been defined using passenger_env_var directive and at application boot time kms-env manage them. This secrets has been already encrypted before manually using aws cli [4].
+The secrets for the application are managed with AWS KMS, using the Ruby gem [3]. I find it's the fastest and the safest way to manage the secrets. This ruby gem it's pretty simple, basically you need to define the env variables with the suffix "_KMS" and then uses KMS to decrypt the string defined and set a new variable with the string decrypted without the suffix. This env variables has been defined using passenger_env_var directive and at application boot time kms-env manage them. This secrets has been already encrypted manually using aws cli [4].
 
-#### Tradeoffs
+### Tradeoffs
 
-I've found there's a lot of stuff I would like to include in the homework were missing due to time constraint. Others are just for cost reasons, which I don't consider are necessary for the homework but on the other hand are important for a real production application and have to be considered.
+I've found there's a lot of stuff I would like to include in the homework were missing due to time constraint. Others are just for cost reasons, which I don't consider are necessary for the homework but on the other hand are important for a real production applications and have to be considered.
 
 * VPC subnetting would be improved separating the public subnets (DMZ) and private subnets (Backend services) with a NAT Gateway, in order to improve the network security. I couldn't do this due to the time constraint.
 * Ansible playbook needs some refactor, I've defined all the code inside the playbook.yaml and I think it should be split and maintained in different ansible roles.
